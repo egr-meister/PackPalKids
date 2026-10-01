@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 // Release signing: environment variables (CI) or an uncommitted signing.properties (local).
@@ -93,8 +94,13 @@ kotlin {
     jvmToolchain(17)
 }
 
+// Room Gradle plugin exports schemas per variant safely (parallel debug/release KSP runs
+// sharing one schemaLocation can read each other's half-written JSON).
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.generateKotlin", "true")
 }
 
