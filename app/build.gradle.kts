@@ -100,10 +100,9 @@ ksp {
 
 // Never fall back to debug signing: release packaging fails fast without real credentials.
 gradle.taskGraph.whenReady {
-    val wantsRelease = allTasks.any { t ->
-        t.project == project && (t.name.contains("Release") && (t.name.startsWith("assemble") ||
-            t.name.startsWith("bundle") || t.name.startsWith("package") || t.name.startsWith("sign")))
-    }
+    // Only tasks that produce release APK/AAB need the key; unit tests and lint for release do not.
+    val signingTasks = setOf("assembleRelease", "bundleRelease", "packageRelease", "packageReleaseBundle", "signReleaseBundle")
+    val wantsRelease = allTasks.any { t -> t.project == project && t.name in signingTasks }
     if (wantsRelease && !hasReleaseSigning) {
         throw GradleException(
             "Release signing credentials are missing. Set ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, " +
